@@ -218,7 +218,7 @@ def loss_function(intercept, slope, targets = targets, features = features):
 loss_function(intercept, slope, test_targets, test_features)
 ```
 
-### Training a Linear Regression model
+### Training a Linear Regression model in TensorFlow
 - A linear regression model assumes a linear relationship. `price = intercept + size * slope + error`. The difference between the predicted and the actual price is the error, which can be used to construct a loss function.
 - Univariate regression : there is only one feature. Mutiple regression models have more than one feature.
 - Initialize target and features. **Also initialize the intercept and slope as trainable variables.**
@@ -257,19 +257,6 @@ for j in range(1000):
 # print the trained parameters
 print(intercept.numpy(), slope.numpy())
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
