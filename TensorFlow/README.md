@@ -258,6 +258,87 @@ for j in range(1000):
 print(intercept.numpy(), slope.numpy())
 ```
 
+### Batch training
+- Batch training to handle large datasets. If the dataset is very large and we want to perform training on the GPU which has only small amount of memory. So we can't fit the entire dataset in memory, we will instead divide it into batches and train on those batches sequentially.
+- A single pass over all of the batches is called an epoch and the process itself is called batch training.
+- Beyond alleviating memory constraints, batch training will also allow us to update model weights and optimizer parameters after each batch, rather than at the end of the epoch.
+
+#### The chunksize parameter
+- `pd.read_csv()` allows us the load data in batches using chunksize parameter
+
+```python
+import pandas as pd
+import numpy as np
+
+for batch in pd.read_csv('kc_housing.csv', chunksize=100):
+    price = np.array(batch['price'], np.float32)
+    # extract size col
+    size = np.array(batch['size'], np.float32)
+```
+
+#### Training a linear model in batches
+- Define variables for intercept and slope along with the regression models. After defining the loss function, we instantiate an adam optimizer, which we use to perform minimization.
+- Next step is to train the model in batches.
+- Within the minimize operation, we pass the loss function as a lambda function and **we supply a variable list that contains only the trainable parameters, intercept and slope.**
+
+```python
+import tensorflow as tf
+import pandas as pd
+import numpy as np
+
+# define trainable variables
+intercept = tf.Variable(0.1, tf.float32)
+slope = tf.Variable(0.1, tf.float32)
+
+# define the model
+def linear_regression(intercept, slope, features):
+    return intercept + features * slope
+    
+# compute predicted values and return loss function
+def loss_function(intercept, slope, targets, features):
+    predictions = linear_regression(intercept, slope, target)
+    return tf.keras.losses.mse(targets, predictions)
+    
+# define optimization operation
+opt = tf.keras.optimizers.Adam()
+
+# load the data in batches from pandas
+for batch in pd.read_csv('kc_housing.csv', chunksize=100):
+    # extract the target & features columns
+    price_batch = np.array(batch['price'], np.float32)
+    size_batch = np.array(batch['lot_size'], np.float32)
+    
+    # minimize the loss function
+    opt.minimize(lambda: loss_function(intercept, slope, price_batch, size_batch), var_list=[intercept, slope])
+    
+# print trained interecept and slope
+print(intercept.numpy() , slope.numpy())
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
