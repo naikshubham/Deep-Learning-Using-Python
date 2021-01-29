@@ -315,8 +315,59 @@ for batch in pd.read_csv('kc_housing.csv', chunksize=100):
 print(intercept.numpy() , slope.numpy())
 ```
 
+### Dense layers
+- How do we get from a linear regression to a neural network? By adding a hidden layer, which, in this case, consists of two nodes. Each hidden layer node takes the two inputs, multiplies them by their respective weights, and sums them together.
+- Here we will learn to construct neural networks with 3 types of layers: an input layer, some number of hidden layers, and an output layer. 
+- The input layer consists of our features. The output layer contains our prediction. Each hidden layer takes inputs from the previous layer, applies numerical weights to them, sums them together, and then applies an activation function.
+- In the neural network graph, we have applied a particular type of hidden layer called a dense layer. A dense layer is a fully connected layer and applies weights to all nodes from the previous layer.
 
+#### A simple dense layer
+- First define a constant tensor that contains the marital status and age data as the input layer.
+- We then initialize weights as a variable, since we will train those weights to predict the output from the inputs.
+- We also define a bias, which will pay a similar role to the intercept in the linear regression model.
+- Finally we define a dense layer. We first perform a matrix mul of the inputs by the weights and assign that to the tensor named product. We then add product to the bias and apply a non-linear transformation, in this case the sigmoid function. This is called the activation function.
+- The bias is not associated with the feature and is analogous to the intercept in a linear regression.
 
+```python
+import tensorflow as tf
+
+# define inputs (features)
+inputs = tf.constant([[1, 35]])
+
+# define weights
+weights = tf.Variable([[-0.05], [-0.01]])
+
+# define the bias
+bias = tf.Variable([0.5])
+
+# multiply inputs (features) by the weights
+product = tf.matmul(inputs, weights)
+
+# define dense layer
+dense = tf.keras.activations.sigmoid(product + bias)
+```
+
+#### Defining a complete model
+- Tensorflow also comes with higher level operations, such as `tf.keras.layers.Dense`, which allows us to skip the linear algebra.
+- In the dense layer, the first argument specifies the number of outgoing nodes. By default, a bias will be included. We've also passed inputs as an argument to the first dense layer.
+- We can easily define another dense layer, which takes the first dense layer as an argument and then reduces the number of nodes.
+- The output layer reduces this again to one node.
+
+```python
+import tensorflow as tf
+
+# define input (features) layer
+inputs = tf.constant(data, tf.float32)
+
+# define first dense layer
+dense1 = tf.keras.layers.Dense(10, activation='sigmoid')(inputs)
+
+# define second dense layer
+dense2 = tf.keras.layers.Dense(5, activation='sigmoid')(dense1)
+
+# define output (predictions) layer
+outputs = tf.keras.layers.Dense(1, activation='sigmod')(dense2)
+```
 
 
 
