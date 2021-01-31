@@ -369,17 +369,96 @@ dense2 = tf.keras.layers.Dense(5, activation='sigmoid')(dense1)
 outputs = tf.keras.layers.Dense(1, activation='sigmod')(dense2)
 ```
 
+### Activation functions
+- A typical hidden layer consists of two operations. The first performs matrix multiplication, which is a linear operation, and the second applies an activation function, which is nonlinear operation.
 
+#### Why non linearities are important ?
+- Consider a simple model using the credit card data. The features are borrower age and credit card bill amount. The target variable is default.
+- If we look at a scatterplot of age and bill amount. We can see that bill amount usually increases early in life and decreases later in life. This suggests that a high bill for young and older borrowers may mean something different for default.
+- If we want our model to capture this, it cant be linear. It must allow the impact of the bill amount to depend on the borrower's age. This is what an activation function does.
 
+### Optimizers
+- SGD optimizer can be instantiated using the keras optimizers module `tf.keras.optimizers.SGD()`. We can then supply a `learning rate`, between 0.5 and 0.001, which will determine how quickly the model parameters adjust during training. Its simple and easy to interpret.
+- `RMS prop optimizer` : has two advantages over SGD. First, it applies different learning rates to each feature, which can be useful for high dimensional problems. And second, it allows us to both build momentum and also allow it to decay. Setting a low value to the decay parameter will prevent momentum from accumulating over long periods during the training process.
+- `Adaptive moment (Adam) optimizer` : provides further improvements and is generally a good first choice. Similar to rms prop, we can set the momentum to decay faster by lowering the beta1 parameter.
+- Relative to RMS prop the adam optimizer will tend to perform better with the default parameter values, which we will typically use.
 
+```python
+import tensorflow as tf
 
+# define the model function
+def model(bias, weights, features=borrower_features):
+    product = tf.matmul(features, weights)
+    return tf.keras.activation.sigmoid(product+bias)
+    
+# compute the predicted values and loss
+def loss_function(bias, weights, targets=default, features=borrower_features):
+    predictions = model(bias, weights)
+    return tf.keras.losses.binary_crossentropy(targets, predictions)
+    
+# minimize the loss function with RMS propagation
+opt = tf.keras.optimizers.RMSprop(learning_rate=0.01, momentum=0.9)
+opt.minimize(lambda:loss_function(bias, weights), var_list=[bias, weights])
+```
 
+### Training a network in TensorFlow
+- We saw that finding the global minimum can be difficult, even when we're minimizing a simple loss function.
 
+#### Random initializers
+- We often need to initialize thousands of variables which is very difficult. Initializing with ones `tf.ones()` may perform poorly and its tedious and difficult to initialize variables individually.
+- A natural alternative to this is to use random or algorithmic generation of initial values. We can, for instance, draw them from a probability distribution,such as the normal or uniform distributions.
+- There are also specialized options, such as the Glorot initializers, which are designed from ML algorithms.
 
+#### Initializing variables in Tensorflow
+- We can also use truncated random normal distribution, which discards very large an very small draws.
+- We can also use a high level approach by initializing a dense layer using the default keras option, currently the glorot uniform initializer.
+- If we want to initialize values to zero, we can do this using the kernel initializer parameter.
 
+```python
+import tensorflow as tf
 
+# define 500x500 random normal var
+weights = tf.Variable(tf.random.normal([500, 500]))
 
+# define 500x500 truncated random normal variable
+weights = tf.Variable(tf.random.truncated_normal([500, 500]))
 
+# define a dense layer with the default initializer
+dense = tf.keras.layers.Dense(32, activation='relu')
+
+# define a dense layer with the zeros initializer
+dense = tf.keras.layers.Dense(32, activation='relu', kernel_initializer='zeros')
+```
+
+#### Neural networks and overfitting
+- If we have a linear relationship between two varaibles. We decide to represent this relationship with a linear model and a more complex model. The complex model perfectly predicts the values in the training set, but performs worse in the test set.
+- The complex model performed poorly because it overfit. It simply memorized examples, rather than learning general patterns. Overfitting is specially problematic for neural networks, which contain many parameters and are quite good at memorization.
+
+#### Applying dropout
+- A simple solution to the overfitting problem is to use dropout, an operation that will randomly drop the weights connected to certain nodes in a layer during the training process. This will force the network to learn only significant features that are important and develop more robust rules for classification, since it cannot rely on any particular nodes being passed to an activation function.
+
+#### Implementing dropout in a network
+- It takes only one argument that specifies that we want to drop the weights connected to 25% of nodes randomly.
+
+```python
+import numpy as np
+import tensorflow as tf
+
+# define input data
+inputs = np.array(borrower_features, np.float32)
+
+# define dense layer 1
+dense1 = tf.keras.layers.Dense(32, activation='relu')(inputs)
+
+# define dense layer 2
+dense2 = tf.keras.layers.Dense(16, activation='relu')(dense1)
+
+# Apply dropout operation
+dropout1 = tf.keras.layers.Dropout(0.25)(dense2)
+
+# define output layer
+outputs = tf.keras.layers.Dense(1, activation='sigmoid')(dropout1)
+```
 
 
 
