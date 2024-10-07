@@ -50,11 +50,27 @@ net = Net()
 result = net(input_layer)
 ```
 
-### Neural Networks
-- 
+### Discovering activation functions
+#### Why do we need activation functions?
+- We can add activation functions to add non-linearity to a network
+- This non-linearity grants networks the ability to learn more complex interactions between inputs X and targets y than only linear relationships
+- The output will no longer be a linear function of the input 
 
+#### Softmax
+- we use sigmoid for binary classification, for multiclass classification involving more than two labels, we use softmax, another popular activation function
 
+### Running a forward pass
 
+#### What is a forward pass?
+- When we pass input data through a neural network in the forward direction to generate outputs, or predictions, the input data flows through the model layers.
+- At each layer, computations performed on the data generate intermediate representations, which are passed to each subsequent layer until the final output is generated.
+- The purpose of the forward pass is to propagate input data through the network and produce predictions or outputs based on the model's learned parameters (weights and biases)
+- This is used both for training and generating new predictions
+
+### Loss functions
+- Loss function takes the scores tensor as input, which is the model prediction before the final softmax function, and the one-hot encoded ground truth label.
+- It outputs a single float, the loss of that sample
+- Goal of training is to minimize the loss
 
 
 
